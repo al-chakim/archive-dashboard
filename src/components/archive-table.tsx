@@ -229,15 +229,51 @@ export default function ArchiveTable() {
                             </option>
 
                             <option>
-                                Disetujui
+                                Permohonan Registrasi
                             </option>
 
                             <option>
-                                Pending
+                                Permohonan Ditolak
                             </option>
 
                             <option>
-                                Ditolak
+                                Registrasi Masuk
+                            </option>
+
+                            <option>
+                                Verifikasi Command Center
+                            </option>
+
+                            <option>
+                                Ditolak Command Center
+                            </option>
+
+                            <option>
+                                Ditolak Unit Umum
+                            </option>
+
+                            <option>
+                                Scheduled
+                            </option>
+
+                            <option>
+                                Ready to Pick Up
+                            </option>
+
+                            <option>
+                                Picked Up
+                            </option>
+
+                            <option>
+                                Pickup Failed
+                            </option>
+
+                            <option>
+                                On Location
+                            </option>
+
+                            <option>
+                                Diarsipkan
                             </option>
                         </select>
 
@@ -253,7 +289,7 @@ export default function ArchiveTable() {
 
                                 setCurrentPage(1);
                             }}
-                            className="text-slate-700 rounded-lg border border-slate-300 px-4 py-2 text-sm"
+                            className="text-slate-700 rounded-lg border border-slate-300 px-4 py-2 text-sm "
                         >
                             <option value={5}>
                                 5

@@ -4,12 +4,12 @@ import Sidebar from "@/components/sidebar";
 
 export default function Monres() {
     return (
-        <div className="flex bg-slate-100 min-h-screen overflow-hidden">
+        <div className="flex h-screen bg-slate-100 overflow-hidden">
             <Sidebar />
 
-            <div className="flex-1 overflow-hidden">
+            <div className="flex flex-col flex-1 overflow-hidden">
                 <Navbar />
-                <main className="p-4 overflow-hidden">
+                <main className="flex-1 overflow-y-auto p-4">
                     <ArchiveTable />
                 </main>
             </div>
