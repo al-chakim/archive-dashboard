@@ -21,6 +21,11 @@ export default function Sidebar() {
             name: "Monitoring Registrasi",
             path: "/monitoring-registrasi",
         },
+
+        {
+            name: "Histori Arsip",
+            path: "/histori-arsip",
+        },
     ];
 
     return (
