@@ -1,37 +1,49 @@
-import { Pool, QueryResult } from "pg";
+// import { Pool } from "pg";
 
-if (
-  !process.env.DB_HOST ||
-  !process.env.DB_PORT ||
-  !process.env.DB_USER ||
-  !process.env.DB_PASSWORD ||
-  !process.env.DB_NAME
-) {
-  throw new Error("Database environment variables are missing");
+// declare global {
+//   // eslint-disable-next-line no-var
+//   var pool: Pool | undefined;
+// }
+
+// export const pool =
+//   global.pool ||
+//   new Pool({
+//     host: process.env.DB_HOST,
+//     port: Number(process.env.DB_PORT),
+//     user: process.env.DB_USER,
+//     password: process.env.DB_PASSWORD,
+//     database: process.env.DB_NAME,
+
+//     max: 10,
+
+//     idleTimeoutMillis: 30000,
+//   });
+
+// if (process.env.NODE_ENV !== "production") {
+//   global.pool = pool;
+// }
+
+import { Pool } from "pg";
+
+declare global {
+  // eslint-disable-next-line no-var
+  var pool: Pool | undefined;
 }
 
-export const db = new Pool({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+export const pool =
+  global.pool ||
+  new Pool({
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
 
-  // jika perlu SSL
-  ssl: false,
-});
+    max: 10,
 
-export const query = async (
-  text: string,
-  params?: (string | number | boolean | null)[],
-): Promise<QueryResult> => {
-  const start = Date.now();
+    idleTimeoutMillis: 30000,
+  });
 
-  const res = await db.query(text, params);
-
-  const duration = Date.now() - start;
-
-  console.log(`Query executed in ${duration}ms`);
-
-  return res;
-};
+if (process.env.NODE_ENV !== "production") {
+  global.pool = pool;
+}

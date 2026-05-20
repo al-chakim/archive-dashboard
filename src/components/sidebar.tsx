@@ -9,7 +9,7 @@ export default function Sidebar() {
     const menus = [
         {
             name: "Dashboard",
-            path: "/",
+            path: "/dashboard",
         },
 
         {
@@ -28,7 +28,7 @@ export default function Sidebar() {
             {/* HEADER */}
             <div className="p-6 border-b border-slate-700">
                 <h1 className="text-2xl font-bold">
-                    E-Arsip
+                    Dash - ELARCH
                 </h1>
 
                 <p className="text-sm text-slate-400 mt-1">

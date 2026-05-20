@@ -1,157 +1,98 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const archives = [
     {
-        perihal: "Dokumen Kontrak Kerja Sama Vendor",
-        no_registrasi: "REG-001/ASH/2025",
+        hal_arsip:
+            "Dokumen Kontrak Kerja Sama Vendor",
         no_arsip: "DOC-001",
+        tanggal_arsip: "2025-01-25",
+        no_registrasi: "REG-001/ASH/2025",
+        registrator: "Umar",
+        no_box: "BOX-001",
         tanggal_registrasi: "2025-01-20",
-        pic_registrasi: "Umar - umar@mail.com",
-        no_box: "00344",
-        divisi: "DIV MUM",
-        sumber: "ELARCH",
-        tanggal_diarsipkan: "",
-        unit_fungsi: "MUM - Staff",
-        unit_umum: "UNIT UMUM",
-        status_registrasi: "Permohonan Registrasi",
-        status_arsip: "",
-        status_inisiasi: "",
-        format: "Fisik",
-        document_type: "Aktif",
-        tanggal_update: "2026-05-13",
+        verifikasi_arsip: "Approved",
+        verifikasi_unit_fungsi:
+            "Approved",
+        penjadwalan: "Scheduled",
+        pengambilan: "Picked Up",
+        penyimpanan: "On Location",
+        status: "Diarsipkan",
     },
 
     {
-        perihal: "Surat Perizinan Operasional",
-        no_registrasi: "REG-002/ASH/2025",
+        hal_arsip:
+            "Surat Perizinan Operasional",
         no_arsip: "DOC-002",
-        tanggal_registrasi: "2025-01-20",
-        pic_registrasi: "Rudi - rudi@mail.com",
-        no_box: "00344",
-        divisi: "DIV KOM",
-        sumber: "ELARCH",
-        tanggal_diarsipkan: "",
-        unit_fungsi: "KOM - Staff",
-        unit_umum: "UNIT UMUM",
-        status_registrasi: "Registrasi Masuk",
-        status_arsip: "",
-        status_inisiasi: "",
-        format: "Fisik",
-        document_type: "Aktif",
-        tanggal_update: "2026-05-13",
+        tanggal_arsip: "",
+        no_registrasi: "REG-002/ASH/2025",
+        registrator: "Rudi",
+        no_box: "BOX-002",
+        tanggal_registrasi: "2025-01-22",
+        verifikasi_arsip: "Pending",
+        verifikasi_unit_fungsi:
+            "Waiting",
+        penjadwalan: "-",
+        pengambilan: "-",
+        penyimpanan: "-",
+        status: "Registrasi Masuk",
     },
 
     {
-        perihal: "Dokumen Serah Terima",
-        no_registrasi: "REG-003/ASH/2025",
+        hal_arsip:
+            "Laporan Audit Tahunan",
         no_arsip: "DOC-003",
-        tanggal_registrasi: "2025-01-20",
-        pic_registrasi: "Yanu - yanu@mail.com",
-        no_box: "00344",
-        divisi: "DIV STI",
-        sumber: "ELARCH",
-        tanggal_diarsipkan: "2026-05-13",
-        unit_fungsi: "STI - Staff",
-        unit_umum: "UNIT UMUM",
-        status_registrasi: "Diarsipkan",
-        status_arsip: "Tersedia",
-        status_inisiasi: "",
-        format: "Fisik",
-        document_type: "Inaktif",
-        tanggal_update: "2026-05-13",
-    },
-
-    {
-        perihal: "Laporan Audit Tahunan",
-        no_registrasi: "REG-014/ASH/2025",
-        no_arsip: "DOC-014",
-        tanggal_registrasi: "2025-01-20",
-        pic_registrasi: "Rehan - rehan@mail.com",
-        no_box: "00344",
-        divisi: "DIV SDM",
-        sumber: "ELARCH",
-        tanggal_diarsipkan: "",
-        unit_fungsi: "SDM - Staff",
-        unit_umum: "UNIT UMUM",
-        status_registrasi: "Permohonan Registrasi",
-        status_arsip: "",
-        status_inisiasi: "",
-        format: "Fisik",
-        document_type: "Aktif",
-        tanggal_update: "2026-05-13",
-    },
-
-    {
-        perihal: "Surat Pengadaan Barang",
-        no_registrasi: "REG-054/ASH/2025",
-        no_arsip: "DOC-054",
-        tanggal_registrasi: "2025-01-20",
-        pic_registrasi: "Anwar - anwar@mail.com",
-        no_box: "00344",
-        divisi: "DIV TCO",
-        sumber: "ELARCH",
-        tanggal_diarsipkan: "",
-        unit_fungsi: "TCO - Staff",
-        unit_umum: "UNIT UMUM",
-        status_registrasi: "Verifikasi Command Center",
-        status_arsip: "",
-        status_inisiasi: "",
-        format: "Fisik",
-        document_type: "Aktif",
-        tanggal_update: "2026-05-13",
-    },
-
-    {
-        perihal: "Surat Permohonan Kegiatan CSR",
-        no_registrasi: "REG-057/ASH/2025",
-        no_arsip: "DOC-057",
-        tanggal_registrasi: "2025-01-20",
-        pic_registrasi: "Joko - joko@mail.com",
-        no_box: "00344",
-        divisi: "DIV HSR",
-        sumber: "ELARCH",
-        tanggal_diarsipkan: "",
-        unit_fungsi: "HSR - Staff",
-        unit_umum: "UNIT UMUM",
-        status_registrasi: "Ditolak",
-        status_arsip: "",
-        status_inisiasi: "",
-        format: "Fisik",
-        document_type: "Aktif",
-        tanggal_update: "2026-05-13",
+        tanggal_arsip: "",
+        no_registrasi: "REG-003/ASH/2025",
+        registrator: "Rehan",
+        no_box: "BOX-003",
+        tanggal_registrasi: "2025-01-24",
+        verifikasi_arsip: "Rejected",
+        verifikasi_unit_fungsi:
+            "Rejected",
+        penjadwalan: "-",
+        pengambilan: "-",
+        penyimpanan: "-",
+        status: "Ditolak",
     },
 ];
 
-function getStatusColor(status) {
+function getStatusColor(status: string) {
     if (status.includes("Ditolak")) {
         return "bg-red-100 text-red-700";
-    }
-
-    if (status.includes("Permohonan Registrasi")) {
-        return "bg-gray-200 text-gray-700";
-    }
-
-    if (status.includes("Registrasi Masuk")) {
-        return "bg-blue-100 text-blue-700";
     }
 
     if (status.includes("Diarsipkan")) {
         return "bg-green-100 text-green-700";
     }
 
-    if (status.includes("Verifikasi Command Center")) {
-        return "bg-fuchsia-100 text-fuchsia-700";
+    if (
+        status.includes("Registrasi")
+    ) {
+        return "bg-blue-100 text-blue-700";
     }
+
+    return "bg-slate-100 text-slate-700";
 }
 
 export default function ArchiveTable() {
-    const [search, setSearch] = useState("");
+    const [search, setSearch] =
+        useState("");
+
     const [statusFilter, setStatusFilter] =
         useState("Semua");
 
-    const [perPage, setPerPage] = useState(5);
+    const [startDate, setStartDate] =
+        useState("");
+
+    const [endDate, setEndDate] =
+        useState("");
+
+    const [perPage, setPerPage] =
+        useState(5);
 
     const [currentPage, setCurrentPage] =
         useState(1);
@@ -160,351 +101,405 @@ export default function ArchiveTable() {
     const filteredData = useMemo(() => {
         return archives.filter((item) => {
             const matchesSearch =
-                item.perihal
+                item.hal_arsip
                     .toLowerCase()
-                    .includes(search.toLowerCase()) ||
+                    .includes(
+                        search.toLowerCase()
+                    ) ||
                 item.no_registrasi
                     .toLowerCase()
-                    .includes(search.toLowerCase()) ||
+                    .includes(
+                        search.toLowerCase()
+                    ) ||
                 item.no_arsip
                     .toLowerCase()
-                    .includes(search.toLowerCase());
+                    .includes(
+                        search.toLowerCase()
+                    );
 
             const matchesStatus =
                 statusFilter === "Semua"
                     ? true
-                    : item.status_registrasi ===
+                    : item.status ===
                     statusFilter;
 
+            // FILTER TANGGAL
+            const itemDate =
+                new Date(
+                    item.tanggal_registrasi
+                );
+
+            const matchesStartDate =
+                startDate
+                    ? itemDate >=
+                    new Date(startDate)
+                    : true;
+
+            const matchesEndDate =
+                endDate
+                    ? itemDate <=
+                    new Date(endDate)
+                    : true;
+
             return (
-                matchesSearch && matchesStatus
+                matchesSearch &&
+                matchesStatus &&
+                matchesStartDate &&
+                matchesEndDate
             );
         });
-    }, [search, statusFilter]);
+    }, [
+        search,
+        statusFilter,
+        startDate,
+        endDate,
+    ]);
 
     // PAGINATION
     const totalPages = Math.ceil(
         filteredData.length / perPage
     );
 
-    const paginatedData = filteredData.slice(
-        (currentPage - 1) * perPage,
-        currentPage * perPage
-    );
+    const paginatedData =
+        filteredData.slice(
+            (currentPage - 1) *
+            perPage,
+            currentPage * perPage
+        );
+
+    // EXPORT EXCEL
+    const handleExportExcel = () => {
+        const worksheet =
+            XLSX.utils.json_to_sheet(
+                filteredData
+            );
+
+        const workbook =
+            XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            "Data Arsip"
+        );
+
+        const excelBuffer =
+            XLSX.write(workbook, {
+                bookType: "xlsx",
+                type: "array",
+            });
+
+        const fileData = new Blob(
+            [excelBuffer],
+            {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+            }
+        );
+
+        saveAs(
+            fileData,
+            `data-arsip-${Date.now()}.xlsx`
+        );
+    };
 
     return (
-        <div className="bg-white rounded-md shadow-sm border mt-6 border-slate-300">
+        <div className="bg-white rounded-xl shadow-sm border mt-6 border-slate-200">
             {/* HEADER */}
             <div className="p-4 border-b border-slate-200">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                    {/* SEARCH */}
-                    <input
-                        type="text"
-                        placeholder="Cari data arsip..."
-                        value={search}
-                        onChange={(e) => {
-                            setSearch(
-                                e.target.value
-                            );
-                            setCurrentPage(1);
-                        }}
-                        className="text-slate-700 w-full lg:w-[350px] rounded-lg border border-slate-300 px-4 py-2 text-sm outline-none focus:border-blue-500"
-                    />
-
-                    <div className="flex flex-wrap items-center gap-3">
-                        {/* FILTER */}
-                        <select
-                            value={statusFilter}
+                <div className="flex flex-col gap-3">
+                    {/* ROW 1 */}
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                        {/* SEARCH */}
+                        <input
+                            type="text"
+                            placeholder="Cari arsip..."
+                            value={search}
                             onChange={(e) => {
-                                setStatusFilter(
+                                setSearch(
                                     e.target.value
                                 );
 
                                 setCurrentPage(1);
                             }}
-                            className="text-slate-700 rounded-lg border border-slate-300 px-4 py-2 text-sm"
-                        >
-                            <option>
-                                Semua
-                            </option>
+                            className="w-full lg:w-[350px] rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 outline-none focus:border-blue-500"
+                        />
 
-                            <option>
-                                Permohonan Registrasi
-                            </option>
-
-                            <option>
-                                Permohonan Ditolak
-                            </option>
-
-                            <option>
-                                Registrasi Masuk
-                            </option>
-
-                            <option>
-                                Verifikasi Command Center
-                            </option>
-
-                            <option>
-                                Ditolak Command Center
-                            </option>
-
-                            <option>
-                                Ditolak Unit Umum
-                            </option>
-
-                            <option>
-                                Scheduled
-                            </option>
-
-                            <option>
-                                Ready to Pick Up
-                            </option>
-
-                            <option>
-                                Picked Up
-                            </option>
-
-                            <option>
-                                Pickup Failed
-                            </option>
-
-                            <option>
-                                On Location
-                            </option>
-
-                            <option>
-                                Diarsipkan
-                            </option>
-                        </select>
-
-                        {/* LIMIT */}
-                        <select
-                            value={perPage}
-                            onChange={(e) => {
-                                setPerPage(
-                                    Number(
+                        {/* RIGHT ACTION */}
+                        <div className="flex flex-wrap items-center gap-3">
+                            {/* FILTER STATUS */}
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => {
+                                    setStatusFilter(
                                         e.target.value
-                                    )
-                                );
+                                    );
 
-                                setCurrentPage(1);
-                            }}
-                            className="text-slate-700 rounded-lg border border-slate-300 px-4 py-2 text-sm "
-                        >
-                            <option value={5}>
-                                5
-                            </option>
+                                    setCurrentPage(1);
+                                }}
+                                className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700"
+                            >
+                                <option>
+                                    Semua
+                                </option>
 
-                            <option value={10}>
-                                10
-                            </option>
+                                <option>
+                                    Registrasi Masuk
+                                </option>
 
-                            <option value={15}>
-                                15
-                            </option>
+                                <option>
+                                    Diarsipkan
+                                </option>
 
-                            <option value={20}>
-                                20
-                            </option>
+                                <option>
+                                    Ditolak
+                                </option>
+                            </select>
 
-                            <option value={50}>
-                                50
-                            </option>
-                        </select>
+                            {/* LIMIT */}
+                            <select
+                                value={perPage}
+                                onChange={(e) => {
+                                    setPerPage(
+                                        Number(
+                                            e.target.value
+                                        )
+                                    );
+
+                                    setCurrentPage(1);
+                                }}
+                                className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700"
+                            >
+                                <option value={5}>
+                                    5
+                                </option>
+
+                                <option value={10}>
+                                    10
+                                </option>
+
+                                <option value={15}>
+                                    15
+                                </option>
+
+                                <option value={20}>
+                                    20
+                                </option>
+
+                                <option value={50}>
+                                    50
+                                </option>
+                            </select>
+
+                            {/* EXPORT */}
+                            <button
+                                onClick={
+                                    handleExportExcel
+                                }
+                                className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+                            >
+                                Export Excel
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* ROW 2 */}
+                    <div className="flex flex-wrap items-center gap-3">
+                        {/* START DATE */}
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm text-slate-600">
+                                Dari
+                            </label>
+
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => {
+                                    setStartDate(
+                                        e.target.value
+                                    );
+
+                                    setCurrentPage(1);
+                                }}
+                                className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700"
+                            />
+                        </div>
+
+                        {/* END DATE */}
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm text-slate-600">
+                                Sampai
+                            </label>
+
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => {
+                                    setEndDate(
+                                        e.target.value
+                                    );
+
+                                    setCurrentPage(1);
+                                }}
+                                className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* TABLE */}
-            <div className="w-full overflow-x-scroll overflow-y-hidden">
-                <table className="min-w-[2200px]">
-                    <thead className="bg-slate-200 text-slate-700">
+            <div className="w-full overflow-x-auto">
+                <table className="min-w-[2000px] w-full">
+                    <thead className="bg-slate-100 text-slate-700">
                         <tr>
-                            <th className="text-left p-4 min-w-[250px]">
-                                Perihal
+                            <th className="text-left p-4">
+                                Hal. Arsip
                             </th>
 
-                            <th className="text-left p-4 min-w-[250px]">
-                                No. Registrasi
-                            </th>
-
-                            <th className="text-left p-4 min-w-[350px]">
+                            <th className="text-left p-4">
                                 No. Arsip
                             </th>
 
-                            <th className="text-left p-4 min-w-[250px]">
-                                Tanggal Registrasi
+                            <th className="text-left p-4">
+                                Tanggal Arsip
                             </th>
 
-                            <th className="text-left p-4 min-w-[200px]">
-                                PIC Registrasi
+                            <th className="text-left p-4">
+                                No. Registrasi
                             </th>
 
-                            <th className="text-left p-4 min-w-[250px]">
+                            <th className="text-left p-4">
+                                Registrator
+                            </th>
+
+                            <th className="text-left p-4">
                                 No. Box
                             </th>
 
-                            <th className="text-left p-4 min-w-[180px]">
-                                Divisi
+                            <th className="text-left p-4">
+                                Tanggal Registrasi
                             </th>
 
-                            <th className="text-left p-4 min-w-[180px]">
-                                Sumber
+                            <th className="text-left p-4">
+                                Verifikasi Arsip
                             </th>
 
-                            <th className="text-left p-4 min-w-[250px]">
-                                Tanggal Diarsipkan
+                            <th className="text-left p-4">
+                                Verifikasi Unit Fungsi
                             </th>
 
-                            <th className="text-left p-4 min-w-[180px]">
-                                Unit Fungsi
+                            <th className="text-left p-4">
+                                Penjadwalan
                             </th>
 
-                            <th className="text-left p-4 min-w-[220px]">
-                                Unit Umum
+                            <th className="text-left p-4">
+                                Pengambilan
                             </th>
 
-                            <th className="text-left p-4 min-w-[220px]">
-                                Status Registrasi
+                            <th className="text-left p-4">
+                                Penyimpanan
                             </th>
 
-                            <th className="text-left p-4 min-w-[220px]">
-                                Status Arsip
-                            </th>
-
-                            <th className="text-left p-4 min-w-[220px]">
-                                Status Inisiasi
-                            </th>
-
-                            <th className="text-left p-4 min-w-[220px]">
-                                format
-                            </th>
-
-                            <th className="text-left p-4 min-w-[220px]">
-                                Tipe Dokumen
-                            </th>
-
-                            <th className="text-left p-4 min-w-[220px]">
-                                Tanggal Update
+                            <th className="text-left p-4">
+                                Status
                             </th>
                         </tr>
                     </thead>
 
                     <tbody>
                         {paginatedData.map(
-                            (item, index) => (
+                            (
+                                item,
+                                index
+                            ) => (
                                 <tr
-                                    key={index}
+                                    key={
+                                        index
+                                    }
                                     className="border-b border-slate-200 hover:bg-slate-50 transition"
                                 >
-                                    <td className="p-4 whitespace-nowrap text-slate-900">
+                                    <td className="p-4 whitespace-nowrap text-slate-800">
                                         {
-                                            item.perihal
+                                            item.hal_arsip
                                         }
                                     </td>
 
-                                    <td className="p-4 whitespace-nowrap text-slate-900">
-                                        {
-                                            item.no_registrasi
-                                        }
-                                    </td>
-
-                                    <td className="p-4 min-w-[350px] text-slate-900">
+                                    <td className="p-4 whitespace-nowrap text-slate-800">
                                         {
                                             item.no_arsip
                                         }
                                     </td>
 
-                                    <td className="p-4 whitespace-nowrap text-slate-900">
+                                    <td className="p-4 whitespace-nowrap text-slate-800">
                                         {
-                                            item.tanggal_registrasi
+                                            item.tanggal_arsip
                                         }
                                     </td>
 
-                                    <td className="p-4 whitespace-nowrap text-slate-900">
+                                    <td className="p-4 whitespace-nowrap text-slate-800">
                                         {
-                                            item.pic_registrasi
+                                            item.no_registrasi
                                         }
                                     </td>
 
-                                    <td className="p-4 whitespace-nowrap text-slate-900">
+                                    <td className="p-4 whitespace-nowrap text-slate-800">
+                                        {
+                                            item.registrator
+                                        }
+                                    </td>
+
+                                    <td className="p-4 whitespace-nowrap text-slate-800">
                                         {
                                             item.no_box
                                         }
                                     </td>
 
-                                    <td className="p-4 whitespace-nowrap text-slate-900">
+                                    <td className="p-4 whitespace-nowrap text-slate-800">
                                         {
-                                            item.divisi
+                                            item.tanggal_registrasi
                                         }
                                     </td>
 
-                                    <td className="p-4 whitespace-nowrap text-slate-900">
+                                    <td className="p-4 whitespace-nowrap text-slate-800">
                                         {
-                                            item.sumber
+                                            item.verifikasi_arsip
                                         }
                                     </td>
 
-                                    <td className="p-4 whitespace-nowrap text-slate-900">
+                                    <td className="p-4 whitespace-nowrap text-slate-800">
                                         {
-                                            item.tanggal_diarsipkan
+                                            item.verifikasi_unit_fungsi
                                         }
                                     </td>
 
-                                    <td className="p-4 whitespace-nowrap text-slate-900">
+                                    <td className="p-4 whitespace-nowrap text-slate-800">
                                         {
-                                            item.unit_fungsi
+                                            item.penjadwalan
                                         }
                                     </td>
 
-                                    <td className="p-4 whitespace-nowrap text-slate-900">
+                                    <td className="p-4 whitespace-nowrap text-slate-800">
                                         {
-                                            item.unit_umum
+                                            item.pengambilan
+                                        }
+                                    </td>
+
+                                    <td className="p-4 whitespace-nowrap text-slate-800">
+                                        {
+                                            item.penyimpanan
                                         }
                                     </td>
 
                                     <td className="p-4">
                                         <span
                                             className={`px-3 py-1 rounded-full text-sm whitespace-nowrap ${getStatusColor(
-                                                item.status_registrasi
+                                                item.status
                                             )}`}
                                         >
                                             {
-                                                item.status_registrasi
+                                                item.status
                                             }
                                         </span>
-                                    </td>
-
-                                    <td className="p-4 whitespace-nowrap text-slate-900">
-                                        {
-                                            item.status_arsip
-                                        }
-                                    </td>
-
-                                    <td className="p-4 whitespace-nowrap text-slate-900">
-                                        {
-                                            item.status_inisiasi
-                                        }
-                                    </td>
-
-                                    <td className="p-4 whitespace-nowrap text-slate-900">
-                                        {
-                                            item.format
-                                        }
-                                    </td>
-
-                                    <td className="p-4 whitespace-nowrap text-slate-900">
-                                        {
-                                            item.document_type
-                                        }
-                                    </td>
-
-                                    <td className="p-4 whitespace-nowrap text-slate-900">
-                                        {new Date(
-                                            item.tanggal_registrasi
-                                        ).toLocaleDateString(
-                                            "id-ID"
-                                        )}
                                     </td>
                                 </tr>
                             )
@@ -517,7 +512,10 @@ export default function ArchiveTable() {
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between border-t border-slate-200 p-4">
                 <p className="text-sm text-slate-500">
                     Menampilkan{" "}
-                    {paginatedData.length} data
+                    {
+                        paginatedData.length
+                    }{" "}
+                    data
                 </p>
 
                 <div className="flex items-center gap-2">
@@ -527,7 +525,8 @@ export default function ArchiveTable() {
                         }
                         onClick={() =>
                             setCurrentPage(
-                                currentPage - 1
+                                currentPage -
+                                1
                             )
                         }
                         className="rounded-lg border border-slate-300 px-3 py-1 text-sm disabled:opacity-50"
@@ -537,23 +536,29 @@ export default function ArchiveTable() {
 
                     {Array.from({
                         length: totalPages,
-                    }).map((_, index) => (
-                        <button
-                            key={index}
-                            onClick={() =>
-                                setCurrentPage(
-                                    index + 1
-                                )
-                            }
-                            className={`rounded-lg px-3 py-1 text-sm ${currentPage ===
-                                index + 1
-                                ? "bg-slate-900 text-white"
-                                : "border border-slate-300"
-                                }`}
-                        >
-                            {index + 1}
-                        </button>
-                    ))}
+                    }).map(
+                        (_, index) => (
+                            <button
+                                key={
+                                    index
+                                }
+                                onClick={() =>
+                                    setCurrentPage(
+                                        index +
+                                        1
+                                    )
+                                }
+                                className={`rounded-lg px-3 py-1 text-sm ${currentPage ===
+                                    index +
+                                    1
+                                    ? "bg-slate-900 text-white"
+                                    : "border border-slate-300"
+                                    }`}
+                            >
+                                {index + 1}
+                            </button>
+                        )
+                    )}
 
                     <button
                         disabled={
@@ -562,7 +567,8 @@ export default function ArchiveTable() {
                         }
                         onClick={() =>
                             setCurrentPage(
-                                currentPage + 1
+                                currentPage +
+                                1
                             )
                         }
                         className="rounded-lg border border-slate-300 px-3 py-1 text-sm disabled:opacity-50"

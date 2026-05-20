@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import * as XLSX from "xlsx";
 
 const archives = [
     {
@@ -99,15 +100,11 @@ function getStatusColor(status: string) {
         return "bg-blue-100 text-blue-700";
     }
 
-    if (
-        status.includes("Verifikasi")
-    ) {
+    if (status.includes("Verifikasi")) {
         return "bg-fuchsia-100 text-fuchsia-700";
     }
 
-    if (
-        status.includes("Schedule")
-    ) {
+    if (status.includes("Schedule")) {
         return "bg-amber-100 text-amber-700";
     }
 
@@ -118,15 +115,11 @@ function getStatusColor(status: string) {
         return "bg-cyan-100 text-cyan-700";
     }
 
-    if (
-        status.includes("Diarsipkan")
-    ) {
+    if (status.includes("Diarsipkan")) {
         return "bg-green-100 text-green-700";
     }
 
-    if (
-        status.includes("On Location")
-    ) {
+    if (status.includes("On Location")) {
         return "bg-orange-100 text-orange-700";
     }
 
@@ -134,11 +127,15 @@ function getStatusColor(status: string) {
 }
 
 export default function ArchiveTableSla() {
-    const [search, setSearch] =
-        useState("");
-
+    const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] =
         useState("Semua");
+
+    const [startDate, setStartDate] =
+        useState("");
+
+    const [endDate, setEndDate] =
+        useState("");
 
     const [perPage, setPerPage] =
         useState(5);
@@ -146,7 +143,7 @@ export default function ArchiveTableSla() {
     const [currentPage, setCurrentPage] =
         useState(1);
 
-    // FILTER
+    // FILTER DATA
     const filteredData = useMemo(() => {
         return archives.filter((item) => {
             const matchesSearch =
@@ -172,12 +169,57 @@ export default function ArchiveTableSla() {
                     : item.status ===
                     statusFilter;
 
+            const itemDate = new Date(
+                item.tanggal_registrasi
+            );
+
+            const matchesStartDate =
+                startDate
+                    ? itemDate >=
+                    new Date(startDate)
+                    : true;
+
+            const matchesEndDate =
+                endDate
+                    ? itemDate <=
+                    new Date(endDate)
+                    : true;
+
             return (
                 matchesSearch &&
-                matchesStatus
+                matchesStatus &&
+                matchesStartDate &&
+                matchesEndDate
             );
         });
-    }, [search, statusFilter]);
+    }, [
+        search,
+        statusFilter,
+        startDate,
+        endDate,
+    ]);
+
+    // EXPORT EXCEL
+    const exportToExcel = () => {
+        const worksheet =
+            XLSX.utils.json_to_sheet(
+                filteredData
+            );
+
+        const workbook =
+            XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            "Data Arsip SLA"
+        );
+
+        XLSX.writeFile(
+            workbook,
+            "data-arsip-sla.xlsx"
+        );
+    };
 
     // PAGINATION
     const totalPages = Math.ceil(
@@ -194,102 +236,177 @@ export default function ArchiveTableSla() {
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 mt-6">
             {/* HEADER */}
             <div className="p-4 border-b border-slate-200">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                    {/* SEARCH */}
-                    <input
-                        type="text"
-                        placeholder="Cari arsip..."
-                        value={search}
-                        onChange={(e) => {
-                            setSearch(
-                                e.target.value
-                            );
-
-                            setCurrentPage(1);
-                        }}
-                        className="w-full lg:w-[350px] rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 outline-none focus:border-blue-500"
-                    />
-
-                    <div className="flex items-center gap-3 flex-wrap">
-                        {/* FILTER */}
-                        <select
-                            value={
-                                statusFilter
-                            }
+                <div className="flex flex-col gap-3">
+                    {/* TOP */}
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                        <input
+                            type="text"
+                            placeholder="Cari arsip..."
+                            value={search}
                             onChange={(e) => {
-                                setStatusFilter(
-                                    e.target
-                                        .value
+                                setSearch(
+                                    e.target.value
                                 );
 
                                 setCurrentPage(
                                     1
                                 );
                             }}
-                            className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700"
-                        >
-                            <option>
-                                Semua
-                            </option>
+                            className="w-full lg:w-[350px] rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 outline-none focus:border-blue-500"
+                        />
 
-                            <option>
-                                Registrasi Masuk
-                            </option>
-
-                            <option>
-                                Ready to Pick Up
-                            </option>
-
-                            <option>
-                                On Location
-                            </option>
-
-                            <option>
-                                Diarsipkan
-                            </option>
-
-                            <option>
-                                Permohonan Ditolak
-                            </option>
-                        </select>
-
-                        {/* LIMIT */}
-                        <select
-                            value={perPage}
-                            onChange={(e) => {
-                                setPerPage(
-                                    Number(
-                                        e.target
+                        <div className="flex flex-wrap items-center gap-3">
+                            {/* FILTER STATUS */}
+                            <select
+                                value={
+                                    statusFilter
+                                }
+                                onChange={(
+                                    e
+                                ) => {
+                                    setStatusFilter(
+                                        e
+                                            .target
                                             .value
-                                    )
-                                );
+                                    );
 
-                                setCurrentPage(
-                                    1
-                                );
-                            }}
-                            className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700"
-                        >
-                            <option value={5}>
-                                5
-                            </option>
+                                    setCurrentPage(
+                                        1
+                                    );
+                                }}
+                                className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700"
+                            >
+                                <option>
+                                    Semua
+                                </option>
 
-                            <option value={10}>
-                                10
-                            </option>
+                                <option>
+                                    Registrasi Masuk
+                                </option>
 
-                            <option value={15}>
-                                15
-                            </option>
+                                <option>
+                                    Ready to Pick Up
+                                </option>
 
-                            <option value={20}>
-                                20
-                            </option>
+                                <option>
+                                    On Location
+                                </option>
 
-                            <option value={50}>
-                                50
-                            </option>
-                        </select>
+                                <option>
+                                    Diarsipkan
+                                </option>
+
+                                <option>
+                                    Permohonan Ditolak
+                                </option>
+                            </select>
+
+                            {/* LIMIT */}
+                            <select
+                                value={perPage}
+                                onChange={(
+                                    e
+                                ) => {
+                                    setPerPage(
+                                        Number(
+                                            e
+                                                .target
+                                                .value
+                                        )
+                                    );
+
+                                    setCurrentPage(
+                                        1
+                                    );
+                                }}
+                                className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700"
+                            >
+                                <option value={5}>
+                                    5
+                                </option>
+
+                                <option value={10}>
+                                    10
+                                </option>
+
+                                <option value={15}>
+                                    15
+                                </option>
+
+                                <option value={20}>
+                                    20
+                                </option>
+
+                                <option value={50}>
+                                    50
+                                </option>
+                            </select>
+
+                            {/* EXPORT */}
+                            <button
+                                onClick={
+                                    exportToExcel
+                                }
+                                className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+                            >
+                                Export Excel
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* FILTER TANGGAL */}
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm text-slate-600">
+                                Dari
+                            </label>
+
+                            <input
+                                type="date"
+                                value={
+                                    startDate
+                                }
+                                onChange={(
+                                    e
+                                ) => {
+                                    setStartDate(
+                                        e
+                                            .target
+                                            .value
+                                    );
+
+                                    setCurrentPage(
+                                        1
+                                    );
+                                }}
+                                className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700"
+                            />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm text-slate-600">
+                                Sampai
+                            </label>
+
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={(
+                                    e
+                                ) => {
+                                    setEndDate(
+                                        e
+                                            .target
+                                            .value
+                                    );
+
+                                    setCurrentPage(
+                                        1
+                                    );
+                                }}
+                                className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
