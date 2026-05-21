@@ -14,8 +14,10 @@ export const getArchiveHistories = unstable_cache(
 
             tar.source,
 
-            (tar.registered_at AT TIME ZONE 'Asia/Jakarta')::date
-                AS tanggal_registrasi,
+            to_char(
+                tar.registered_at AT TIME ZONE 'Asia/Jakarta',
+                'YYYY-MM-DD'
+            ) AS tanggal_registrasi,
 
             to_char(
                 tar.registered_at AT TIME ZONE 'Asia/Jakarta',
@@ -31,11 +33,14 @@ export const getArchiveHistories = unstable_cache(
 
             (
                 SELECT
-                    (
-                        to_timestamp(
-                            (elem->>'timestamp')::bigint
-                        ) AT TIME ZONE 'Asia/Jakarta'
-                    )::date
+                    to_char(
+                        (
+                            to_timestamp(
+                                (elem->>'timestamp')::bigint
+                            ) AT TIME ZONE 'Asia/Jakarta'
+                        ),
+                        'YYYY-MM-DD'
+                    )
                 FROM jsonb_array_elements(tar.histories::jsonb) elem
                 ORDER BY (elem->>'timestamp')::bigint DESC
                 LIMIT 1

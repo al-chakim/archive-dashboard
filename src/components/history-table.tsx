@@ -103,7 +103,7 @@ export default function HistoriTable({
         useState("");
 
     const [perPage, setPerPage] =
-        useState(10);
+        useState(5);
 
     const [currentPage, setCurrentPage] =
         useState(1);
@@ -436,9 +436,9 @@ export default function HistoriTable({
                                 Jam Status
                             </th>
 
-                            <th className="min-w-[220px] p-2 text-left">
+                            {/* <th className="min-w-[220px] p-2 text-left">
                                 Created By
-                            </th>
+                            </th> */}
 
                             <th className="min-w-[180px] p-2 text-left">
                                 Format Arsip
@@ -532,11 +532,11 @@ export default function HistoriTable({
                                         }
                                     </td>
 
-                                    <td className="whitespace-nowrap p-2 text-slate-900 text-sm">
+                                    {/* <td className="whitespace-nowrap p-2 text-slate-900 text-sm">
                                         {
                                             item.created_by
                                         }
-                                    </td>
+                                    </td> */}
 
                                     <td className="whitespace-nowrap p-2 text-slate-900 text-sm">
                                         {
@@ -574,54 +574,135 @@ export default function HistoriTable({
             <div className="flex flex-col gap-3 border-t border-slate-200 p-4 lg:flex-row lg:items-center lg:justify-between">
                 <p className="text-sm text-slate-500">
                     Menampilkan{" "}
-                    {
-                        paginatedData.length
-                    }{" "}
-                    dari{" "}
-                    {
-                        filteredData.length
-                    }{" "}
-                    data
+                    {paginatedData.length} dari{" "}
+                    {filteredData.length} data
                 </p>
 
+                {/* PAGINATION BUTTON */}
                 <div className="flex items-center gap-2">
                     <button
-                        disabled={
-                            currentPage === 1
-                        }
+                        disabled={currentPage === 1}
                         onClick={() =>
                             setCurrentPage(
-                                currentPage -
-                                1
+                                currentPage - 1
                             )
                         }
-                        className="rounded-lg border border-slate-300 px-3 py-1 text-sm disabled:opacity-50"
+                        className="rounded-lg border border-slate-500 px-3 py-1 text-sm disabled:cursor-not-allowed disabled:opacity-50 text-slate-700"
                     >
                         Prev
                     </button>
 
-                    {Array.from({
-                        length: totalPages,
-                    }).map(
-                        (_, index) => (
-                            <button
-                                key={index}
-                                onClick={() =>
-                                    setCurrentPage(
-                                        index +
-                                        1
+                    {/* PAGE NUMBER */}
+                    {(() => {
+                        let startPage = Math.max(
+                            currentPage - 1,
+                            1
+                        );
+
+                        let endPage =
+                            startPage + 2;
+
+                        if (
+                            endPage > totalPages
+                        ) {
+                            endPage = totalPages;
+
+                            startPage =
+                                Math.max(
+                                    endPage - 2,
+                                    1
+                                );
+                        }
+
+                        const pages = [];
+
+                        for (
+                            let i = startPage;
+                            i <= endPage;
+                            i++
+                        ) {
+                            pages.push(i);
+                        }
+
+                        return (
+                            <>
+                                {startPage >
+                                    1 && (
+                                        <>
+                                            <button
+                                                onClick={() =>
+                                                    setCurrentPage(
+                                                        1
+                                                    )
+                                                }
+                                                className="rounded-lg border border-slate-500 px-3 py-1 text-sm text-slate-700"
+                                            >
+                                                1
+                                            </button>
+
+                                            {startPage >
+                                                2 && (
+                                                    <span className="px-1 text-slate-500">
+                                                        ...
+                                                    </span>
+                                                )}
+                                        </>
+                                    )}
+
+                                {pages.map(
+                                    (
+                                        page
+                                    ) => (
+                                        <button
+                                            key={
+                                                page
+                                            }
+                                            onClick={() =>
+                                                setCurrentPage(
+                                                    page
+                                                )
+                                            }
+                                            className={`rounded-lg px-3 py-1 text-sm ${currentPage ===
+                                                page
+                                                ? "bg-slate-900 text-slate-300"
+                                                : "border border-slate-500 text-slate-700"
+                                                }`}
+                                        >
+                                            {
+                                                page
+                                            }
+                                        </button>
                                     )
-                                }
-                                className={`rounded-lg px-3 py-1 text-sm ${currentPage ===
-                                    index + 1
-                                    ? "bg-slate-900 text-white"
-                                    : "border border-slate-300"
-                                    }`}
-                            >
-                                {index + 1}
-                            </button>
-                        )
-                    )}
+                                )}
+
+                                {endPage <
+                                    totalPages && (
+                                        <>
+                                            {endPage <
+                                                totalPages -
+                                                1 && (
+                                                    <span className="px-1 text-slate-700">
+                                                        ...
+                                                    </span>
+                                                )}
+
+                                            <button
+                                                onClick={() =>
+                                                    setCurrentPage(
+                                                        totalPages
+                                                    )
+                                                }
+                                                className="rounded-lg border border-slate-500 px-3 py-1 text-sm text-slate-700"
+                                            >
+                                                {
+                                                    totalPages
+                                                }
+                                            </button>
+                                        </>
+                                    )}
+                            </>
+                        );
+                    })()}
 
                     <button
                         disabled={
@@ -630,11 +711,10 @@ export default function HistoriTable({
                         }
                         onClick={() =>
                             setCurrentPage(
-                                currentPage +
-                                1
+                                currentPage + 1
                             )
                         }
-                        className="rounded-lg border border-slate-300 px-3 py-1 text-sm disabled:opacity-50"
+                        className="rounded-lg border border-slate-500 px-3 py-1 text-sm disabled:cursor-not-allowed disabled:opacity-50 text-slate-700"
                     >
                         Next
                     </button>
