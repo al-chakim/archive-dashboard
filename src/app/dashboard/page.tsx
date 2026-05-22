@@ -1,116 +1,147 @@
-import ArchiveTable from "@/components/archive-table";
 import Navbar from "@/components/navbar";
 import Sidebar from "@/components/sidebar";
 import StatCard from "@/components/stat-card";
-import StatusChart from "@/components/status-chart";
 
-export default function HomePage() {
+import { getDashboardStats } from "@/lib/queries/archive-total";
+
+export default async function HomePage() {
+    const stats = await getDashboardStats();
+
     return (
-        <div className="flex h-screen bg-slate-100 overflow-hidden">
+        <div className="flex h-screen overflow-hidden bg-slate-100">
             {/* SIDEBAR */}
             <Sidebar />
 
             {/* CONTENT */}
-            <div className="flex flex-col flex-1 overflow-hidden">
-                {/* NAVBAR FIXED */}
+            <div className="flex flex-1 flex-col overflow-hidden">
+                {/* NAVBAR */}
                 <Navbar />
 
-                {/* SCROLL AREA */}
+                {/* CONTENT */}
                 <main className="flex-1 overflow-y-auto p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+
                         <StatCard
                             title="Total Dokumen"
-                            total="12.540"
+                            total={Number(
+                                stats.total_dokumen
+                            ).toLocaleString("id-ID")}
                             bgColor="bg-violet-500"
                         />
 
                         <StatCard
-                            title="Permohonan Registrasi/Registrasi Masuk"
-                            total="1.240"
+                            title="Permohonan Registrasi / Registrasi Masuk"
+                            total={Number(
+                                stats.registrasi_masuk
+                            ).toLocaleString("id-ID")}
                             bgColor="bg-blue-500"
                         />
 
                         <StatCard
                             title="Verifikasi Arsip"
-                            total="8.210"
+                            total={Number(
+                                stats.verifikasi_arsip
+                            ).toLocaleString("id-ID")}
                             bgColor="bg-fuchsia-500"
                         />
 
                         <StatCard
                             title="Verifikasi Command Center"
-                            total="152"
+                            total={Number(
+                                stats.verifikasi_command_center
+                            ).toLocaleString("id-ID")}
                             bgColor="bg-slate-500"
                         />
 
                         <StatCard
                             title="Verifikasi Unit Umum"
-                            total="27"
+                            total={Number(
+                                stats.verifikasi_unit_umum
+                            ).toLocaleString("id-ID")}
                             bgColor="bg-slate-500"
                         />
 
                         <StatCard
                             title="Siap Dijemput"
-                            total="55"
+                            total={Number(
+                                stats.siap_dijemput
+                            ).toLocaleString("id-ID")}
                             bgColor="bg-slate-500"
                         />
 
                         <StatCard
                             title="Scheduled"
-                            total="605"
+                            total={Number(
+                                stats.scheduled
+                            ).toLocaleString("id-ID")}
                             bgColor="bg-slate-500"
                         />
 
                         <StatCard
-                            title="Ready to Pick Up"
-                            total="680"
+                            title="Ready To Pick Up"
+                            total={Number(
+                                stats.ready_to_pickup
+                            ).toLocaleString("id-ID")}
                             bgColor="bg-purple-500"
                         />
 
                         <StatCard
                             title="Pick Up"
-                            total="5"
+                            total={Number(
+                                stats.pickup
+                            ).toLocaleString("id-ID")}
                             bgColor="bg-purple-500"
                         />
 
                         <StatCard
                             title="On Location"
-                            total="1504"
+                            total={Number(
+                                stats.on_location
+                            ).toLocaleString("id-ID")}
                             bgColor="bg-amber-500"
                         />
 
                         <StatCard
                             title="Dokumen Diarsipkan"
-                            total="118530"
+                            total={Number(
+                                stats.diarsipkan
+                            ).toLocaleString("id-ID")}
                             bgColor="bg-green-500"
                         />
 
                         <StatCard
                             title="Permohonan Ditolak"
-                            total="55"
+                            total={Number(
+                                stats.permohonan_ditolak
+                            ).toLocaleString("id-ID")}
                             bgColor="bg-red-500"
                         />
 
                         <StatCard
                             title="Ditolak Command Center"
-                            total="125"
+                            total={Number(
+                                stats.ditolak_command_center
+                            ).toLocaleString("id-ID")}
                             bgColor="bg-red-500"
                         />
 
                         <StatCard
-                            title="Permohonan Ditolak"
-                            total="15"
+                            title="Ditolak Unit Umum"
+                            total={Number(
+                                stats.ditolak_unit_umum
+                            ).toLocaleString("id-ID")}
                             bgColor="bg-red-500"
                         />
 
                         <StatCard
                             title="Pickup Failed"
-                            total="4"
+                            total={Number(
+                                stats.pickup_failed
+                            ).toLocaleString("id-ID")}
                             bgColor="bg-red-500"
                         />
+
                     </div>
-
-                    <StatusChart />
-
                 </main>
             </div>
         </div>
