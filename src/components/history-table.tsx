@@ -1,87 +1,95 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
+
 import * as XLSX from "xlsx";
 
-interface PaginationProps {
-    currentPage: number;
-    totalPages: number;
-    setCurrentPage: (page: number) => void;
-}
+import {
+    usePathname,
+    useRouter,
+    useSearchParams,
+} from "next/navigation";
 
 type ArchiveHistory = {
     no_registrasi: string;
     hal_arsip: string;
     no_dokumen: string;
-
     nama_user: string;
     email: string;
-
     source: string;
-
     tanggal_registrasi: string;
     jam_registrasi: string;
-
     status_terakhir: string;
-
     tanggal_status_terakhir: string;
     jam_status_terakhir: string;
-
-    created_by: string;
-
+    created_by: string | null;
     format_arsip: string;
     tipe_dokumen: string;
 };
 
 type Props = {
     data: ArchiveHistory[];
+    totalPages: number;
+    currentPage: number;
+    totalData: number;
 };
 
 function getStatusColor(status: string) {
     if (
-        status?.includes("Permohonan Ditolak") ||
-        status?.includes("Ditolak Command Center") ||
-        status?.includes("Ditolak Unit Umum")
+        status?.includes("Ditolak") ||
+        status?.includes("Schedule Aborted"
+        )
     ) {
         return "bg-red-100 text-red-700";
     }
 
     if (
-        status?.includes("Registrasi Masuk") ||
-        status?.includes("Permohonan Registrasi")
+        status?.includes(
+            "Registrasi Masuk"
+        )
     ) {
         return "bg-blue-100 text-blue-700";
     }
 
     if (
-        status?.includes("Verifikasi command center")
+        status?.includes(
+            "Verifikasi"
+        )
     ) {
         return "bg-fuchsia-100 text-fuchsia-700";
     }
 
     if (
-        status?.includes("Scheduled")
+        status?.includes(
+            "Scheduled"
+        ) ||
+        status?.includes("On Location"
+        )
     ) {
         return "bg-amber-100 text-amber-700";
     }
 
     if (
-        status?.includes("Ready To Pick Up") ||
-        status?.includes("Picked Up")
+        status?.includes(
+            "Picked Up"
+        )
     ) {
-        return "bg-cyan-100 text-cyan-700";
+        return "bg-purple-100 text-purple-700";
     }
 
     if (
-        status?.includes("Diarsipkan")
+        status?.includes(
+            "Diarsipkan"
+        ) ||
+        status?.includes(
+            "Ready To Pick Up"
+        )
     ) {
         return "bg-green-100 text-green-700";
-    }
-
-    if (
-        status?.includes("On Location")
-    ) {
-        return "bg-orange-100 text-orange-700";
     }
 
     return "bg-slate-100 text-slate-700";
@@ -89,87 +97,125 @@ function getStatusColor(status: string) {
 
 export default function HistoriTable({
     data,
+    totalPages,
+    currentPage,
+    totalData,
 }: Props) {
+
+    const router = useRouter();
+
+    const pathname =
+        usePathname();
+
+    const searchParams =
+        useSearchParams();
+
+    /*
+    ===================================
+    STATE
+    ===================================
+    */
+
     const [search, setSearch] =
         useState("");
 
-    const [statusFilter, setStatusFilter] =
-        useState("Semua");
+    /*
+    ===================================
+    SYNC URL
+    ===================================
+    */
 
-    const [startDate, setStartDate] =
-        useState("");
+    useEffect(() => {
 
-    const [endDate, setEndDate] =
-        useState("");
+        setSearch(
+            searchParams.get(
+                "search"
+            ) || ""
+        );
 
-    const [perPage, setPerPage] =
-        useState(5);
+    }, [searchParams]);
 
-    const [currentPage, setCurrentPage] =
-        useState(1);
+    /*
+    ===================================
+    QUERY BUILDER
+    ===================================
+    */
 
-    // FILTER DATA
-    const filteredData = useMemo(() => {
-        return data.filter((item) => {
-            const searchLower =
-                search.toLowerCase();
+    const createQueryString = (
+        values: Record<
+            string,
+            string
+        >
+    ) => {
 
-            const matchesSearch =
-                item.hal_arsip
-                    ?.toLowerCase()
-                    .includes(searchLower) ||
-                item.no_registrasi
-                    ?.toLowerCase()
-                    .includes(searchLower) ||
-                item.no_dokumen
-                    ?.toLowerCase()
-                    .includes(searchLower) ||
-                item.nama_user
-                    ?.toLowerCase()
-                    .includes(searchLower);
-
-            const matchesStatus =
-                statusFilter === "Semua"
-                    ? true
-                    : item.status_terakhir ===
-                    statusFilter;
-
-            const itemDate = new Date(
-                item.tanggal_registrasi
+        const params =
+            new URLSearchParams(
+                searchParams.toString()
             );
 
-            const matchesStartDate =
-                startDate
-                    ? itemDate >=
-                    new Date(startDate)
-                    : true;
+        Object.entries(values).forEach(
+            ([key, value]) => {
 
-            const matchesEndDate =
-                endDate
-                    ? itemDate <=
-                    new Date(endDate)
-                    : true;
+                if (
+                    !value ||
+                    value === "Semua"
+                ) {
+                    params.delete(key);
 
-            return (
-                matchesSearch &&
-                matchesStatus &&
-                matchesStartDate &&
-                matchesEndDate
-            );
-        });
-    }, [
-        data,
-        search,
-        statusFilter,
-        startDate,
-        endDate,
-    ]);
+                    return;
+                }
 
-    // EXPORT EXCEL
+                params.set(
+                    key,
+                    value
+                );
+            }
+        );
+
+        return params.toString();
+    };
+
+    /*
+    ===================================
+    SEARCH
+    ===================================
+    */
+
+    useEffect(() => {
+
+        const timeout =
+            setTimeout(() => {
+
+                const query =
+                    createQueryString(
+                        {
+                            search,
+                            page: "1",
+                        }
+                    );
+
+                router.push(
+                    `${pathname}?${query}`
+                );
+
+            }, 500);
+
+        return () =>
+            clearTimeout(timeout);
+
+    }, [search]);
+
+    /*
+    ===================================
+    EXPORT
+    ===================================
+    */
+
     const exportToExcel = () => {
+
         const worksheet =
             XLSX.utils.json_to_sheet(
-                filteredData
+                data
             );
 
         const workbook =
@@ -187,328 +233,397 @@ export default function HistoriTable({
         );
     };
 
-    // PAGINATION
-    const totalPages = Math.ceil(
-        filteredData.length / perPage
-    );
+    /*
+    ===================================
+    PAGINATION
+    ===================================
+    */
 
-    const paginatedData =
-        filteredData.slice(
-            (currentPage - 1) * perPage,
-            currentPage * perPage
-        );
+    const paginationNumbers =
+        useMemo(() => {
+
+            if (totalPages <= 7) {
+                return Array.from(
+                    {
+                        length: totalPages,
+                    },
+                    (_, i) => i + 1
+                );
+            }
+
+            const pages: (number | string)[] =
+                [];
+
+            // Add first page
+            pages.push(1);
+
+            // Calculate range around current page
+            let start =
+                Math.max(
+                    2,
+                    currentPage - 1
+                );
+
+            let end =
+                Math.min(
+                    totalPages - 1,
+                    currentPage + 1
+                );
+
+            // Add ellipsis if needed
+            if (start > 2) {
+                pages.push("...");
+            }
+
+            // Add middle pages
+            for (
+                let i = start;
+                i <= end;
+                i++
+            ) {
+                pages.push(i);
+            }
+
+            // Add ellipsis if needed
+            if (
+                end <
+                totalPages - 1
+            ) {
+                pages.push("...");
+            }
+
+            // Add last page
+            pages.push(totalPages);
+
+            return pages;
+
+        }, [
+            currentPage,
+            totalPages,
+        ]);
 
     return (
         <div className="mt-6 rounded-xl border border-slate-200 bg-white shadow-sm">
-            {/* HEADER */}
+
+            {/* FILTER */}
             <div className="border-b border-slate-200 p-4">
-                <div className="flex flex-col gap-4">
-                    {/* TOP */}
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                        {/* SEARCH */}
-                        <input
-                            type="text"
-                            placeholder="Cari histori arsip..."
-                            value={search}
-                            onChange={(e) => {
-                                setSearch(
-                                    e.target.value
+
+                <div className="flex flex-wrap gap-3">
+
+                    {/* SEARCH */}
+                    <input
+                        type="text"
+                        placeholder="Cari histori arsip..."
+                        value={search}
+                        onChange={(e) =>
+                            setSearch(
+                                e.target.value
+                            )
+                        }
+                        className="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 lg:w-[300px]"
+                    />
+
+                    {/* STATUS */}
+                    <select
+                        value={
+                            searchParams.get(
+                                "status"
+                            ) || "Semua"
+                        }
+                        onChange={(e) => {
+
+                            const query =
+                                createQueryString(
+                                    {
+                                        status:
+                                            e.target
+                                                .value,
+                                        page: "1",
+                                    }
                                 );
 
-                                setCurrentPage(
-                                    1
+                            router.push(
+                                `${pathname}?${query}`
+                            );
+                        }}
+                        className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700"
+                    >
+
+                        <option value="Semua">
+                            Semua
+                        </option>
+
+                        <option value="Permohonan Registrasi">
+                            Permohonan Registrasi
+                        </option>
+
+                        <option value="Registrasi Masuk">
+                            Registrasi Masuk
+                        </option>
+
+                        <option value="Permohonan Ditolak">
+                            Permohonan Ditolak
+                        </option>
+
+                        <option value="Verifikasi Command Center">
+                            Verifikasi Command Center
+                        </option>
+
+                        <option value="Scheduled">
+                            Scheduled
+                        </option>
+
+                        <option value="Ready To Pick Up">
+                            Ready To Pick Up
+                        </option>
+
+                        <option value="Picked Up">
+                            Picked Up
+                        </option>
+
+                        <option value="On Location">
+                            On Location
+                        </option>
+
+                        <option value="Diarsipkan">
+                            Diarsipkan
+                        </option>
+
+                    </select>
+
+                    {/* START DATE */}
+                    <input
+                        type="date"
+                        value={
+                            searchParams.get(
+                                "startDate"
+                            ) || ""
+                        }
+                        onChange={(e) => {
+
+                            const query =
+                                createQueryString(
+                                    {
+                                        startDate:
+                                            e.target
+                                                .value,
+                                        page: "1",
+                                    }
                                 );
-                            }}
-                            className="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 outline-none focus:border-blue-500 lg:w-[350px]"
-                        />
 
-                        <div className="flex flex-wrap items-center gap-3">
-                            {/* FILTER STATUS */}
-                            <select
-                                value={
-                                    statusFilter
-                                }
-                                onChange={(
-                                    e
-                                ) => {
-                                    setStatusFilter(
-                                        e.target
-                                            .value
-                                    );
+                            router.push(
+                                `${pathname}?${query}`
+                            );
+                        }}
+                        className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700"
+                    />
 
-                                    setCurrentPage(
-                                        1
-                                    );
-                                }}
-                                className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700"
-                            >
-                                <option>
-                                    Semua
-                                </option>
+                    {/* END DATE */}
+                    <input
+                        type="date"
+                        value={
+                            searchParams.get(
+                                "endDate"
+                            ) || ""
+                        }
+                        onChange={(e) => {
 
-                                <option>
-                                    Registrasi Masuk
-                                </option>
+                            const query =
+                                createQueryString(
+                                    {
+                                        endDate:
+                                            e.target
+                                                .value,
+                                        page: "1",
+                                    }
+                                );
 
-                                <option>
-                                    Verifikasi Command Center
-                                </option>
+                            router.push(
+                                `${pathname}?${query}`
+                            );
+                        }}
+                        className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700"
+                    />
 
-                                <option>
-                                    Scheduled
-                                </option>
+                    {/* LIMIT */}
+                    <select
+                        value={
+                            searchParams.get(
+                                "limit"
+                            ) || "5"
+                        }
+                        onChange={(e) => {
 
-                                <option>
-                                    Ready to Pick Up
-                                </option>
+                            const query =
+                                createQueryString(
+                                    {
+                                        limit:
+                                            e.target
+                                                .value,
+                                        page: "1",
+                                    }
+                                );
 
-                                <option>
-                                    Picked Up
-                                </option>
+                            router.push(
+                                `${pathname}?${query}`
+                            );
+                        }}
+                        className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700"
+                    >
 
-                                <option>
-                                    On Location
-                                </option>
+                        <option value="5">
+                            5
+                        </option>
 
-                                <option>
-                                    Diarsipkan
-                                </option>
+                        <option value="10">
+                            10
+                        </option>
 
-                                <option>
-                                    Ditolak
-                                </option>
-                            </select>
+                        <option value="15">
+                            15
+                        </option>
 
-                            {/* LIMIT */}
-                            <select
-                                value={perPage}
-                                onChange={(
-                                    e
-                                ) => {
-                                    setPerPage(
-                                        Number(
-                                            e
-                                                .target
-                                                .value
-                                        )
-                                    );
+                        <option value="20">
+                            20
+                        </option>
 
-                                    setCurrentPage(
-                                        1
-                                    );
-                                }}
-                                className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700"
-                            >
-                                <option value={5}>
-                                    5
-                                </option>
+                    </select>
 
-                                <option value={10}>
-                                    10
-                                </option>
+                    {/* EXPORT */}
+                    <button
+                        onClick={
+                            exportToExcel
+                        }
+                        className="rounded-lg bg-green-600 px-4 py-2 text-sm text-white"
+                    >
+                        Export Excel
+                    </button>
 
-                                <option value={15}>
-                                    15
-                                </option>
-
-                                <option value={25}>
-                                    25
-                                </option>
-
-                                <option value={50}>
-                                    50
-                                </option>
-                            </select>
-
-                            {/* EXPORT */}
-                            <button
-                                onClick={
-                                    exportToExcel
-                                }
-                                className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700"
-                            >
-                                Export Excel
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* FILTER TANGGAL */}
-                    <div className="flex flex-wrap items-center gap-4">
-                        <div className="flex items-center gap-2">
-                            <label className="text-sm text-slate-600">
-                                Dari
-                            </label>
-
-                            <input
-                                type="date"
-                                value={
-                                    startDate
-                                }
-                                onChange={(
-                                    e
-                                ) => {
-                                    setStartDate(
-                                        e.target
-                                            .value
-                                    );
-
-                                    setCurrentPage(
-                                        1
-                                    );
-                                }}
-                                className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700"
-                            />
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <label className="text-sm text-slate-600">
-                                Sampai
-                            </label>
-
-                            <input
-                                type="date"
-                                value={endDate}
-                                onChange={(
-                                    e
-                                ) => {
-                                    setEndDate(
-                                        e.target
-                                            .value
-                                    );
-
-                                    setCurrentPage(
-                                        1
-                                    );
-                                }}
-                                className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700"
-                            />
-                        </div>
-                    </div>
                 </div>
+
             </div>
 
             {/* TABLE */}
-            <div className="w-full overflow-x-auto">
-                <table className="min-w-[2400px] w-full">
-                    <thead className="bg-slate-100 text-slate-700">
-                        <tr>
-                            <th className="min-w-[320px] p-2 text-left">
-                                Hal Arsip
-                            </th>
+            <div className="overflow-x-auto">
 
-                            <th className="min-w-[220px] p-2 text-left">
+                <table className="min-w-[2000px] w-full wh">
+
+                    <thead className="bg-slate-100 text-slate-700 text-sm">
+
+                        <tr>
+
+                            <th className="p-3 text-left">
                                 No Registrasi
                             </th>
 
-                            <th className="min-w-[220px] p-2 text-left">
+                            <th className="p-3 text-left">
+                                Hal Arsip
+                            </th>
+
+                            <th className="p-3 text-left">
                                 No Dokumen
                             </th>
 
-                            <th className="min-w-[220px] p-2 text-left">
-                                Nama User
+                            <th className="p-3 text-left">
+                                Nama
                             </th>
 
-                            <th className="min-w-[250px] p-2 text-left">
+                            <th className="p-3 text-left">
                                 Email
                             </th>
 
-                            <th className="min-w-[180px] p-2 text-left">
-                                Source
+                            <th className="p-3 text-left">
+                                Sumber
                             </th>
 
-                            <th className="min-w-[180px] p-2 text-left">
+                            <th className="p-3 text-left">
                                 Tanggal Registrasi
                             </th>
 
-                            <th className="min-w-[150px] p-2 text-left">
-                                Jam Registrasi
+                            <th className="p-3 text-left">
+                                Jam
                             </th>
 
-                            <th className="min-w-[250px] p-2 text-left">
-                                Status Terakhir
+                            <th className="p-3 text-left ">
+                                Satus Terakhir
                             </th>
 
-                            <th className="min-w-[220px] p-2 text-left">
-                                Tanggal Status
+                            <th className="p-3 text-left">
+                                Tanggal Status Terakhir
                             </th>
 
-                            <th className="min-w-[180px] p-2 text-left">
-                                Jam Status
+                            <th className="p-3 text-left">
+                                Jam Status Terakhir
                             </th>
 
-                            {/* <th className="min-w-[220px] p-2 text-left">
-                                Created By
-                            </th> */}
-
-                            <th className="min-w-[180px] p-2 text-left">
+                            <th className="p-3 text-left">
                                 Format Arsip
                             </th>
 
-                            <th className="min-w-[180px] p-2 text-left">
+                            <th className="p-3 text-left">
                                 Tipe Dokumen
                             </th>
+
                         </tr>
+
                     </thead>
 
                     <tbody>
-                        {paginatedData.map(
+
+                        {data.map(
                             (
                                 item,
                                 index
                             ) => (
                                 <tr
-                                    key={index}
-                                    className="border-b border-slate-200 transition hover:bg-slate-50"
+                                    key={`${item.no_registrasi}-${index}`}
+                                    className="border-b"
                                 >
-                                    <td className="p-2 text-slate-900 text-xs font-semibold">
-                                        {
-                                            item.hal_arsip
-                                        }
-                                    </td>
 
-                                    <td className="whitespace-nowrap p-2 text-slate-900 text-sm font-semibold">
+                                    <td className="p-3 text-sm text-slate-700">
                                         {
                                             item.no_registrasi
                                         }
                                     </td>
 
-                                    <td className="whitespace-nowrap p-2 text-slate-900 text-sm">
+                                    <td className="p-3 text-sm text-slate-700">
+                                        {
+                                            item.hal_arsip
+                                        }
+                                    </td>
+
+                                    <td className="p-3 text-sm text-slate-700">
                                         {
                                             item.no_dokumen
                                         }
                                     </td>
 
-                                    <td className="whitespace-nowrap p-2 text-slate-900 text-sm">
+                                    <td className="p-3 text-sm text-slate-700">
                                         {
                                             item.nama_user
                                         }
                                     </td>
 
-                                    <td className="whitespace-nowrap p-2 text-slate-900 text-sm">
+                                    <td className="p-3 text-sm text-slate-700">
                                         {
                                             item.email
                                         }
                                     </td>
 
-                                    <td className="whitespace-nowrap p-2 text-slate-900 text-sm">
+                                    <td className="p-3 text-sm text-slate-700">
                                         {
                                             item.source
                                         }
                                     </td>
 
-                                    <td className="whitespace-nowrap p-2 text-slate-900 text-sm">
+                                    <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
                                         {
                                             item.tanggal_registrasi
                                         }
                                     </td>
 
-                                    <td className="whitespace-nowrap p-2 text-slate-900 text-sm">
-                                        {
-                                            item.jam_registrasi
-                                        }
-                                    </td>
+                                    <td className="p-3 whitespace-nowrap">
 
-                                    <td className="whitespace-nowrap p-2">
                                         <span
                                             className={`rounded-full px-3 py-1 text-sm ${getStatusColor(
                                                 item.status_terakhir
@@ -518,208 +633,153 @@ export default function HistoriTable({
                                                 item.status_terakhir
                                             }
                                         </span>
+
                                     </td>
 
-                                    <td className="whitespace-nowrap p-2 text-slate-900 text-sm">
+                                    <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
                                         {
                                             item.tanggal_status_terakhir
                                         }
                                     </td>
 
-                                    <td className="whitespace-nowrap p-2 text-slate-900 text-sm">
+                                    <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
                                         {
                                             item.jam_status_terakhir
                                         }
                                     </td>
 
-                                    {/* <td className="whitespace-nowrap p-2 text-slate-900 text-sm">
-                                        {
-                                            item.created_by
-                                        }
-                                    </td> */}
-
-                                    <td className="whitespace-nowrap p-2 text-slate-900 text-sm">
+                                    <td className="p-3 text-sm text-slate-700">
                                         {
                                             item.format_arsip
                                         }
                                     </td>
 
-                                    <td className="whitespace-nowrap p-2 text-slate-900 text-sm">
+                                    <td className="p-3 text-sm text-slate-700">
                                         {
                                             item.tipe_dokumen
                                         }
                                     </td>
+
                                 </tr>
                             )
                         )}
 
-                        {paginatedData.length ===
-                            0 && (
-                                <tr>
-                                    <td
-                                        colSpan={
-                                            14
-                                        }
-                                        className="p-6 text-center text-sm text-slate-500"
-                                    >
-                                        Data tidak ditemukan
-                                    </td>
-                                </tr>
-                            )}
                     </tbody>
+
                 </table>
+
             </div>
 
             {/* PAGINATION */}
-            <div className="flex flex-col gap-3 border-t border-slate-200 p-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-center justify-between p-4">
+
                 <p className="text-sm text-slate-500">
-                    Menampilkan{" "}
-                    {paginatedData.length} dari{" "}
-                    {filteredData.length} data
+                    Total Data:
+                    {" "}
+                    {totalData}
                 </p>
 
-                {/* PAGINATION BUTTON */}
-                <div className="flex items-center gap-2">
+                <div className="flex gap-2">
+
                     <button
-                        disabled={currentPage === 1}
-                        onClick={() =>
-                            setCurrentPage(
-                                currentPage - 1
-                            )
+                        disabled={
+                            currentPage === 1
                         }
-                        className="rounded-lg border border-slate-500 px-3 py-1 text-sm disabled:cursor-not-allowed disabled:opacity-50 text-slate-700"
+                        onClick={() => {
+
+                            const query =
+                                createQueryString(
+                                    {
+                                        page: String(
+                                            currentPage - 1
+                                        ),
+                                    }
+                                );
+
+                            router.push(
+                                `${pathname}?${query}`
+                            );
+                        }}
+                        className="rounded-lg border px-3 py-1 text-sm text-slate-700"
                     >
                         Prev
                     </button>
 
-                    {/* PAGE NUMBER */}
-                    {(() => {
-                        let startPage = Math.max(
-                            currentPage - 1,
-                            1
-                        );
+                    {paginationNumbers.map(
+                        (page, index) => {
 
-                        let endPage =
-                            startPage + 2;
-
-                        if (
-                            endPage > totalPages
-                        ) {
-                            endPage = totalPages;
-
-                            startPage =
-                                Math.max(
-                                    endPage - 2,
-                                    1
+                            if (
+                                page === "..."
+                            ) {
+                                return (
+                                    <span
+                                        key={`ellipsis-${index}`}
+                                        className="flex items-center px-2 py-1 text-slate-700"
+                                    >
+                                        ...
+                                    </span>
                                 );
-                        }
+                            }
 
-                        const pages = [];
+                            return (
+                                <button
+                                    key={`page-${page}`}
+                                    onClick={() => {
 
-                        for (
-                            let i = startPage;
-                            i <= endPage;
-                            i++
-                        ) {
-                            pages.push(i);
-                        }
-
-                        return (
-                            <>
-                                {startPage >
-                                    1 && (
-                                        <>
-                                            <button
-                                                onClick={() =>
-                                                    setCurrentPage(
-                                                        1
-                                                    )
-                                                }
-                                                className="rounded-lg border border-slate-500 px-3 py-1 text-sm text-slate-700"
-                                            >
-                                                1
-                                            </button>
-
-                                            {startPage >
-                                                2 && (
-                                                    <span className="px-1 text-slate-500">
-                                                        ...
-                                                    </span>
-                                                )}
-                                        </>
-                                    )}
-
-                                {pages.map(
-                                    (
-                                        page
-                                    ) => (
-                                        <button
-                                            key={
-                                                page
-                                            }
-                                            onClick={() =>
-                                                setCurrentPage(
-                                                    page
-                                                )
-                                            }
-                                            className={`rounded-lg px-3 py-1 text-sm ${currentPage ===
-                                                page
-                                                ? "bg-slate-900 text-slate-300"
-                                                : "border border-slate-500 text-slate-700"
-                                                }`}
-                                        >
-                                            {
-                                                page
-                                            }
-                                        </button>
-                                    )
-                                )}
-
-                                {endPage <
-                                    totalPages && (
-                                        <>
-                                            {endPage <
-                                                totalPages -
-                                                1 && (
-                                                    <span className="px-1 text-slate-700">
-                                                        ...
-                                                    </span>
-                                                )}
-
-                                            <button
-                                                onClick={() =>
-                                                    setCurrentPage(
-                                                        totalPages
-                                                    )
-                                                }
-                                                className="rounded-lg border border-slate-500 px-3 py-1 text-sm text-slate-700"
-                                            >
+                                        const query =
+                                            createQueryString(
                                                 {
-                                                    totalPages
+                                                    page: String(
+                                                        page
+                                                    ),
                                                 }
-                                            </button>
-                                        </>
-                                    )}
-                            </>
-                        );
-                    })()}
+                                            );
+
+                                        router.push(
+                                            `${pathname}?${query}`
+                                        );
+                                    }}
+                                    className={`rounded-lg px-3 py-1 text-sm ${currentPage ===
+                                        page
+                                        ? "bg-slate-900 text-white"
+                                        : "border text-slate-700"
+                                        }`}
+                                >
+                                    {page}
+                                </button>
+                            );
+                        }
+                    )}
 
                     <button
                         disabled={
                             currentPage ===
                             totalPages
                         }
-                        onClick={() =>
-                            setCurrentPage(
-                                currentPage + 1
-                            )
-                        }
-                        className="rounded-lg border border-slate-500 px-3 py-1 text-sm disabled:cursor-not-allowed disabled:opacity-50 text-slate-700"
+                        onClick={() => {
+
+                            const query =
+                                createQueryString(
+                                    {
+                                        page: String(
+                                            currentPage + 1
+                                        ),
+                                    }
+                                );
+
+                            router.push(
+                                `${pathname}?${query}`
+                            );
+                        }}
+                        className="rounded-lg border px-3 py-1 text-sm text-slate-700"
                     >
                         Next
                     </button>
+
                 </div>
+
             </div>
+
         </div>
     );
 }
