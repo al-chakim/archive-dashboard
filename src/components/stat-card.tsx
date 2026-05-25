@@ -11,7 +11,7 @@ export default function StatCard({
 }: Props) {
     return (
         <div className={`rounded-xl font-medium border p-6 shadow-sm ${bgColor}`}>
-            <h2 className="text-slate-200 text-sm">
+            <h2 className="text-slate-200 text-base">
                 {title}
             </h2>
 

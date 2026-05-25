@@ -9,6 +9,24 @@ export const getDashboardStats = unstable_cache(
 
                 COUNT(*) FILTER (
                     WHERE status IN (
+                        'Permohonan Registrasi'
+                    )
+                ) AS permohonan_registrasi,
+
+                COUNT(*) FILTER (
+                    WHERE status IN (
+                        'Registrasi Masuk'
+                    )
+                ) AS registrasi,
+
+                COUNT(*) FILTER (
+                    WHERE status IN (
+                        'Registrasi Masuk Lanjutan'
+                    )
+                ) AS registrasi_masuk_lanjutan,
+
+                COUNT(*) FILTER (
+                    WHERE status IN (
                         'Permohonan Registrasi',
                         'Registrasi Masuk',
                         'Registrasi Masuk Lanjutan'
@@ -21,6 +39,30 @@ export const getDashboardStats = unstable_cache(
                         'Verifikasi Unit Umum'
                     )
                 ) AS verifikasi_arsip,
+
+                COUNT(*) FILTER (
+                    WHERE status IN (
+                        'Permohonan Ditolak',
+                        'Ditolak Command Center',
+                        'Ditolak Unit Umum',
+                        'Pickup Failed'
+                    )
+                ) AS ditolak,
+
+                COUNT(*) FILTER (
+                    WHERE status IN (
+                        'Permohonan Registrasi',
+                        'Registrasi Masuk',
+                        'Verifikasi Command Center',
+                        'Verifikasi Unit Umum',
+                        'Siap Dijemput Unit Umum',
+                        'Siap Dijemput Record Center',
+                        'Scheduled',
+                        'Ready To Pick Up',
+                        'On Location',
+                        'Picked Up'
+                    )
+                ) AS in_progress,
 
                 COUNT(*) FILTER (
                     WHERE status = 'Verifikasi Command Center'

@@ -622,6 +622,12 @@ export default function HistoriTable({
                                         }
                                     </td>
 
+                                    <td className="p-3 text-sm text-slate-700 whitespace-nowrap">
+                                        {
+                                            item.jam_registrasi
+                                        }
+                                    </td>
+
                                     <td className="p-3 whitespace-nowrap">
 
                                         <span
