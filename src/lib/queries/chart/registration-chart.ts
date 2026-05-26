@@ -1,4 +1,4 @@
-import { db } from "../db";
+import { db } from "../../db";
 
 export async function getRegistrationChart() {
 
@@ -80,6 +80,13 @@ export async function getStatusDistribution() {
 
         WHERE registered_at >= '2025-10-01'
         AND registered_at <= NOW()
+
+        AND status IN (
+            'Permohonan Ditolak',
+            'Ditolak Command Center',
+            'Ditolak Unit Umum',
+            'Pickup Failed'
+        )
 
         GROUP BY status
 

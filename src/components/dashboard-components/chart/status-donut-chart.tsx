@@ -20,8 +20,6 @@ const COLORS = [
     "#9333ea",
     "#f59e0b",
     "#06b6d4",
-    "#22c55e",
-    "#ef4444",
 ];
 
 export default function StatusDonutChart({
@@ -34,7 +32,7 @@ export default function StatusDonutChart({
             <div className="mb-5">
 
                 <h2 className="text-lg font-semibold text-slate-800">
-                    Distribusi Status Arsip
+                    Distribusi Status Arsip Ditolak/Gagal
                 </h2>
 
                 <p className="text-sm text-slate-500">

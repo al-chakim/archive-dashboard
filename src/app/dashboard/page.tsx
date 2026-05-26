@@ -3,14 +3,14 @@ import Navbar from "@/components/navbar";
 import Sidebar from "@/components/sidebar";
 import StatCard from "@/components/dashboard-components/stat-card";
 
-import RegistrationChart from "@/components/dashboard-components/registration-chart";
-import StatusDonutChart from "@/components/dashboard-components/status-donut-chart";
+import RegistrationChart from "@/components/dashboard-components/chart/registration-chart";
+import StatusDonutChart from "@/components/dashboard-components/chart/status-donut-chart";
 
 import { getDashboardStats } from "@/lib/queries/archive-total";
 import {
     getRegistrationChart,
     getStatusDistribution,
-} from "@/lib/queries/dashboard-chart";
+} from "@/lib/queries/chart/registration-chart";
 
 export default async function HomePage() {
     const stats = await getDashboardStats();
@@ -22,6 +22,13 @@ export default async function HomePage() {
         getRegistrationChart(),
         getStatusDistribution(),
     ]);
+
+    const totalAllStatus =
+        statusDistribution.reduce(
+            (acc, item) =>
+                acc + item.total,
+            0
+        );
 
     return (
         <div className="flex h-screen overflow-hidden bg-slate-100">
@@ -81,67 +88,76 @@ export default async function HomePage() {
 
                     </div>
 
-                    {/* DONUT CHART */}
-                    <div className="mb-6">
+                    {/* DONUT + DETAIL */}
+                    <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2 items-stretch">
 
-                        <StatusDonutChart
-                            data={
-                                statusDistribution
-                            }
-                        />
+                        {/* LEFT */}
+                        <div className="h-full">
+                            <StatusDonutChart
+                                data={statusDistribution}
+                            />
+                        </div>
 
-                        <div className="mt-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                        {/* RIGHT */}
+                        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
 
                             <h2 className="mb-5 text-lg font-semibold text-slate-800">
-                                Detail Status Arsip
+                                Detail Status Arsip Ditolak/Gagal
                             </h2>
 
-                            <div className="space-y-4">
+                            <div className="space-y-5">
 
                                 {statusDistribution.map(
-                                    (
-                                        item,
-                                        index
-                                    ) => (
+                                    (item, index) => {
 
-                                        <div
-                                            key={index}
-                                        >
+                                        const totalAll =
+                                            statusDistribution.reduce(
+                                                (acc, curr) =>
+                                                    acc + curr.total,
+                                                0
+                                            );
 
-                                            <div className="mb-1 flex items-center justify-between text-sm">
+                                        const percentage =
+                                            (
+                                                item.total /
+                                                totalAll
+                                            ) * 100;
 
-                                                <span className="text-slate-700">
-                                                    {
-                                                        item.status
-                                                    }
-                                                </span>
+                                        return (
 
-                                                <span className="font-semibold text-slate-900">
-                                                    {
-                                                        item.total
-                                                    }
-                                                </span>
+                                            <div key={index}>
+
+                                                <div className="mb-2 flex items-center justify-between">
+
+                                                    <span className="text-sm text-slate-700">
+                                                        {item.status}
+                                                    </span>
+
+                                                    <span className="text-sm font-semibold text-slate-900">
+                                                        {item.total.toLocaleString()}
+                                                    </span>
+
+                                                </div>
+
+                                                <div className="h-3 overflow-hidden rounded-full bg-slate-200">
+
+                                                    <div
+                                                        className="h-3 rounded-full bg-blue-500 transition-all duration-500"
+                                                        style={{
+                                                            width: `${percentage}%`,
+                                                        }}
+                                                    />
+
+                                                </div>
+
+                                                <p className="mt-1 text-right text-xs text-slate-500">
+                                                    {percentage.toFixed(1)}%
+                                                </p>
 
                                             </div>
 
-                                            <div className="h-3 rounded-full bg-slate-200">
-
-                                                <div
-                                                    className="h-3 rounded-full bg-blue-500"
-                                                    style={{
-                                                        width: `${Math.min(
-                                                            item.total /
-                                                            10,
-                                                            100
-                                                        )}%`,
-                                                    }}
-                                                />
-
-                                            </div>
-
-                                        </div>
-
-                                    )
+                                        );
+                                    }
                                 )}
 
                             </div>
