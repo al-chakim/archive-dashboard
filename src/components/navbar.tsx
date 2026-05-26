@@ -1,5 +1,6 @@
 "use client";
 
+// @ts-ignore: no type declarations for js-cookie in this project
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 

@@ -1,7 +1,7 @@
-import DashboardTable from "@/components/dashboard-table";
+import DashboardTable from "@/components/dashboard-components/dashboard-table";
 import Navbar from "@/components/navbar";
 import Sidebar from "@/components/sidebar";
-import StatCard from "@/components/stat-card";
+import StatCard from "@/components/dashboard-components/stat-card";
 
 import { getDashboardStats } from "@/lib/queries/archive-total";
 
