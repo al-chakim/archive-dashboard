@@ -4,6 +4,7 @@ type Props = {
         registrasi: number;
         registrasi_masuk_lanjutan: number;
         verifikasi_unit_umum: number;
+        verifikasi_command_center: number;
         siap_dijemput: number;
         scheduled: number;
         ready_to_pickup: number;
@@ -25,6 +26,7 @@ export default function DashboardTable({ stats }: Props) {
         { label: "Permohonan Registrasi", value: stats.permohonan_registrasi },
         { label: "Registrasi Masuk", value: stats.registrasi },
         { label: "Registrasi Masuk Lanjutan", value: stats.registrasi_masuk_lanjutan },
+        { label: "Verifikasi Command Center", value: stats.verifikasi_command_center },
         { label: "Verifikasi Unit Umum", value: stats.verifikasi_unit_umum },
         { label: "Siap Dijemput", value: stats.siap_dijemput },
         { label: "Scheduled", value: stats.scheduled },

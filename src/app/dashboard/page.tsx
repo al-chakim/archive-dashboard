@@ -3,10 +3,25 @@ import Navbar from "@/components/navbar";
 import Sidebar from "@/components/sidebar";
 import StatCard from "@/components/dashboard-components/stat-card";
 
+import RegistrationChart from "@/components/dashboard-components/registration-chart";
+import StatusDonutChart from "@/components/dashboard-components/status-donut-chart";
+
 import { getDashboardStats } from "@/lib/queries/archive-total";
+import {
+    getRegistrationChart,
+    getStatusDistribution,
+} from "@/lib/queries/dashboard-chart";
 
 export default async function HomePage() {
     const stats = await getDashboardStats();
+
+    const [
+        registrationChart,
+        statusDistribution,
+    ] = await Promise.all([
+        getRegistrationChart(),
+        getStatusDistribution(),
+    ]);
 
     return (
         <div className="flex h-screen overflow-hidden bg-slate-100">
@@ -53,6 +68,86 @@ export default async function HomePage() {
                             ).toLocaleString("id-ID")}
                             bgColor="bg-red-500"
                         />
+                    </div>
+
+                    {/* LINE CHART */}
+                    <div className="mb-6">
+
+                        <RegistrationChart
+                            data={
+                                registrationChart
+                            }
+                        />
+
+                    </div>
+
+                    {/* DONUT CHART */}
+                    <div className="mb-6">
+
+                        <StatusDonutChart
+                            data={
+                                statusDistribution
+                            }
+                        />
+
+                        <div className="mt-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+
+                            <h2 className="mb-5 text-lg font-semibold text-slate-800">
+                                Detail Status Arsip
+                            </h2>
+
+                            <div className="space-y-4">
+
+                                {statusDistribution.map(
+                                    (
+                                        item,
+                                        index
+                                    ) => (
+
+                                        <div
+                                            key={index}
+                                        >
+
+                                            <div className="mb-1 flex items-center justify-between text-sm">
+
+                                                <span className="text-slate-700">
+                                                    {
+                                                        item.status
+                                                    }
+                                                </span>
+
+                                                <span className="font-semibold text-slate-900">
+                                                    {
+                                                        item.total
+                                                    }
+                                                </span>
+
+                                            </div>
+
+                                            <div className="h-3 rounded-full bg-slate-200">
+
+                                                <div
+                                                    className="h-3 rounded-full bg-blue-500"
+                                                    style={{
+                                                        width: `${Math.min(
+                                                            item.total /
+                                                            10,
+                                                            100
+                                                        )}%`,
+                                                    }}
+                                                />
+
+                                            </div>
+
+                                        </div>
+
+                                    )
+                                )}
+
+                            </div>
+
+                        </div>
+
                     </div>
 
                     <DashboardTable stats={stats} />
