@@ -5,12 +5,12 @@ import StatCard from "@/components/dashboard-components/stat-card";
 
 import RegistrationChart from "@/components/dashboard-components/chart/registration-chart";
 import StatusDonutChart from "@/components/dashboard-components/chart/status-donut-chart";
+import VerificationChart from "@/components/dashboard-components/chart/verification-chart";
 
 import { getDashboardStats } from "@/lib/queries/archive-total";
-import {
-    getRegistrationChart,
-    getStatusDistribution,
-} from "@/lib/queries/chart/registration-chart";
+import { getRegistrationChart } from "@/lib/queries/chart/registration-chart";
+import { getStatusDistribution } from "@/lib/queries/chart/rejected-chart";
+import { getVerificationChart } from "@/lib/queries/chart/verification-chart";
 
 export default async function HomePage() {
     const stats = await getDashboardStats();
@@ -29,6 +29,9 @@ export default async function HomePage() {
                 acc + item.total,
             0
         );
+
+    const verificationChart =
+        await getVerificationChart();
 
     return (
         <div className="flex h-screen overflow-hidden bg-slate-100">
@@ -78,18 +81,23 @@ export default async function HomePage() {
                     </div>
 
                     {/* LINE CHART */}
-                    <div className="mb-6">
+                    <RegistrationChart
+                        data={
+                            registrationChart
+                        }
+                    />
 
-                        <RegistrationChart
-                            data={
-                                registrationChart
-                            }
+                    {/* VERIFICATION CHART */}
+                    <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2 items-stretch">
+
+                        {/* verification chart */}
+                        <VerificationChart
+                            data={verificationChart}
                         />
-
                     </div>
 
                     {/* DONUT + DETAIL */}
-                    <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2 items-stretch">
+                    <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2 items-stretch">
 
                         {/* LEFT */}
                         <div className="h-full">
@@ -142,9 +150,13 @@ export default async function HomePage() {
                                                 <div className="h-3 overflow-hidden rounded-full bg-slate-200">
 
                                                     <div
-                                                        className="h-3 rounded-full bg-blue-500 transition-all duration-500"
+                                                        className="h-3 rounded-full bg-slate-700 transition-all duration-500"
                                                         style={{
-                                                            width: `${percentage}%`,
+                                                            width: `${(
+                                                                (item.total /
+                                                                    totalAllStatus) *
+                                                                100
+                                                            )}%`
                                                         }}
                                                     />
 

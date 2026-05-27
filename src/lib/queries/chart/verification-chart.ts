@@ -1,13 +1,13 @@
-import { db } from "../../db";
+import { db } from "@/lib/db";
 
-export async function getRegistrationChart() {
+export async function getVerificationChart() {
 
     const result = await db.query(`
         WITH months AS (
 
             SELECT
                 generate_series(
-                    date_trunc('month', CURRENT_DATE - interval '6 months'),
+                    date_trunc('month', CURRENT_DATE - interval '3 months'),
                     date_trunc('month', CURRENT_DATE),
                     interval '1 month'
                 ) AS month_date
@@ -23,35 +23,24 @@ export async function getRegistrationChart() {
             COALESCE(
                 SUM(
                     CASE
-                        WHEN tar.status = 'Permohonan Registrasi'
+                        WHEN tar.status = 'Verifikasi Command Center'
                         THEN 1
                         ELSE 0
                     END
                 ),
                 0
-            )::int AS permohonan_registrasi,
+            )::int AS verifikasi_command_center,
 
             COALESCE(
                 SUM(
                     CASE
-                        WHEN tar.status = 'Registrasi Masuk'
+                        WHEN tar.status = 'Verifikasi Unit Umum'
                         THEN 1
                         ELSE 0
                     END
                 ),
                 0
-            )::int AS registrasi_masuk,
-
-            COALESCE(
-                SUM(
-                    CASE
-                        WHEN tar.status = 'Registrasi Masuk Lanjutan'
-                        THEN 1
-                        ELSE 0
-                    END
-                ),
-                0
-            )::int AS registrasi_masuk_lanjutan
+            )::int AS verifikasi_unit_umum
 
         FROM months
 

@@ -16,10 +16,10 @@ type Props = {
 };
 
 const COLORS = [
-    "#2563eb",
-    "#9333ea",
+    "#ff0000",
+    "#ffbf00",
     "#f59e0b",
-    "#06b6d4",
+    "#8b0000",
 ];
 
 export default function StatusDonutChart({
@@ -41,7 +41,7 @@ export default function StatusDonutChart({
 
             </div>
 
-            <div className="h-[350px]">
+            <div className="h-[280px]">
 
                 <ResponsiveContainer
                     width="100%"
