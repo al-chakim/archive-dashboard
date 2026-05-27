@@ -59,7 +59,11 @@ export default function VerificationChart({
 
                         <YAxis />
 
-                        <Tooltip />
+                        <Tooltip
+                            cursor={{
+                                fill: "transparent",
+                            }}
+                        />
 
                         <Legend />
 

@@ -6,11 +6,13 @@ import StatCard from "@/components/dashboard-components/stat-card";
 import RegistrationChart from "@/components/dashboard-components/chart/registration-chart";
 import StatusDonutChart from "@/components/dashboard-components/chart/status-donut-chart";
 import VerificationChart from "@/components/dashboard-components/chart/verification-chart";
+import ProgressWorkflowChart from "@/components/dashboard-components/chart/progress-chart";
 
 import { getDashboardStats } from "@/lib/queries/archive-total";
 import { getRegistrationChart } from "@/lib/queries/chart/registration-chart";
 import { getStatusDistribution } from "@/lib/queries/chart/rejected-chart";
 import { getVerificationChart } from "@/lib/queries/chart/verification-chart";
+import { getProgressWorkflowChart } from "@/lib/queries/chart/progress-chart";
 
 export default async function HomePage() {
     const stats = await getDashboardStats();
@@ -21,6 +23,7 @@ export default async function HomePage() {
     ] = await Promise.all([
         getRegistrationChart(),
         getStatusDistribution(),
+        getProgressWorkflowChart(),
     ]);
 
     const totalAllStatus =
@@ -32,6 +35,9 @@ export default async function HomePage() {
 
     const verificationChart =
         await getVerificationChart();
+
+    const progressWorkflowChart =
+        await getProgressWorkflowChart();
 
     return (
         <div className="flex h-screen overflow-hidden bg-slate-100">
@@ -93,6 +99,11 @@ export default async function HomePage() {
                         {/* verification chart */}
                         <VerificationChart
                             data={verificationChart}
+                        />
+
+                        {/* progress workflow chart */}
+                        <ProgressWorkflowChart
+                            data={progressWorkflowChart}
                         />
                     </div>
 
